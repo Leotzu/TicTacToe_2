@@ -4,23 +4,23 @@ using namespace std;
 
 /*
 NOTE:
-	state values: 0 = empty; 1 = X; 2 = O;
+	state values: 0 = empty; 1 = X; 2 = O
 */
 
 int main() {
 	Board board;
-	Move compMove;
+	Move compMove;  
 	cout << "Alright Human, let's play. Winner gets the launch codes." << endl;
 	displayBoard(board);
 
 	while (true) {
-		board = HumanMove(board);
-		board.freeSpaces--;
-		displayBoard(board);
-		if (checkBoard(board)) break;
-		compMove = getBestMove(board, 1);
-		cout << "Apparently, the best move is: " << compMove.moveNum << endl;
-		cout << board.toString() << endl;
+		board = HumanMove(board);  // change the board instance by requesting and inputting human move.
+		board.freeSpaces--;  // now there's one less available spot on the board.
+		displayBoard(board);  // displays board state on console.
+		if (checkBoard(board)) break;  // checks if the game is over. Is true, checkBoard will print the outcome and exit the loop.
+		
+		compMove = getBestMove(board, 1); // returns the best move so I can test if it's working.
+		cout << "Apparently, the best move is: " << compMove.moveNum << endl;  // prints out the best move as a number refering to board positions displayed in console. 
 		displayBoard(board);
 		if (checkBoard(board)) break;
 	}
@@ -28,6 +28,12 @@ int main() {
 	return 0;
 }
 
+// getBestMove is currently printing a bunch of tests to the console and not functioning properly.
+/*  TODO:
+Update the bestMove through the recursive function (returning a long random number right now).
+Fix the passing of wins, losses, and draws up the tree.
+Currently hardcoded for comp to always play as X. Change this so it's adapable. 
+*/
 Move getBestMove(Board board, int XOswitch) {
 	Move bestMove;
 	Move currMove{ board.state };  // initializing the current move with the current board state.
@@ -50,7 +56,7 @@ Move getBestMove(Board board, int XOswitch) {
 				break;
 			}
 		}
-		//cout << "Free spaces on childBoard: " << childBoard.freeSpaces << endl;
+		//cout << "Free spaces on childBoard: " << childBoard.freeSpaces << endl; // Testing to make sure it knows the proper number of current available space. 
 		cout << "childBoard: \n" << childBoard.toString() << endl;
 		Move childMove = getBestMove(childBoard, XOswitch);
 		childMove.moveNum = childCount;

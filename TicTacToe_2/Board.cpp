@@ -2,7 +2,7 @@
 
 /*
 NOTE:
-	state values: 0 = empty; 1 = X; 2 = O;
+	state values: 0 = empty; 1 = X; 2 = O
 */
 
 Board::Board() {
@@ -32,7 +32,7 @@ bool Board::isOver() {
 	return false;
 }
 
-string Board::toString() {
+string Board::toString() {  // returns the board state as a string. 
 	string str = "Board State:\n ";
 	
 	for (int i = 0; i < 9; i++) {
