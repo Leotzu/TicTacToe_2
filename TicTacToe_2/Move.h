@@ -2,9 +2,7 @@
 class Move
 {
 public:
-	int wins;
-	int losses;
-	int draws;
+	int score;
 	int moveNum;
 	Move();
 	Move(int[]);

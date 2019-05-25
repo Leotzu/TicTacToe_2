@@ -7,10 +7,13 @@ using namespace std;
 class Board
 {
 public:
-	int state[9];
+	int score;
+	int bestMove;
 	int freeSpaces;
+	int state[9];
 	string toString();
 	bool isOver();
+	// Board * prev;
 	Board();
 	~Board();
 };
