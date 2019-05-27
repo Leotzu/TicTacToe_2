@@ -3,6 +3,7 @@
 #include "Board.h"
 #include "Move.h"
 #include <iostream>
+#include <cstdlib> 
 using namespace std;
 
 int X = 1;
