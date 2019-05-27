@@ -7,15 +7,12 @@ NOTE:
 
 int main() {
 	Board board;
-	/*
+	
 	// TESTING:
-	board.state[0] = 2;
-	board.state[2] = 1;
-	board.state[3] = 1;
+	board.state[0] = 1;
+	board.state[3] = 2;
 	board.state[5] = 1;
-	board.state[7] = 2;
-	board.state[8] = 2;
-	*/
+	board.state[6] = 2;
 
 	Board compMove;  
 	cout << "Alright Human, let's play. Winner gets the launch codes." << endl;
@@ -36,8 +33,6 @@ int main() {
 		if (checkBoard(board) != 1) break;  // checks if the game is over. If true, checkBoard will print the outcome and exit the loop.
 		compMove = getBestMove(board, -1, -1);
 		cout << "Apparently, the best move is: " << compMove.bestMove << endl;  // prints out the best move as a number refering to board positions displayed in console. 
-		break;  // TESTING: this is just here to remove the error everytime compMove.bestMove is not from 1 to 9.
-
 		board.state[compMove.bestMove] = 1;
 		displayBoard(board);
 		if (checkBoard(board) != 1) break;
@@ -47,26 +42,33 @@ int main() {
 }
 
 Board getBestMove(Board parent, int parentMove, int XOswitch) {  // XOswitch: 1 = comp turn (max), -1 = human turn (min)
-	// int code = rand();  // TESTNG
+	//int code = rand();  // TESTNG
 	bool wasJustOver = false; // if the previous cycle through the for loop resulted in a win, loss, or draw, wasJustOver = true. Important to avoid going in the same place next cycle.
+	Board child;
 	for (int i = getFreeSpaces(parent); i > 0; i--) {
 		cout << "parentMove: " << parentMove << endl; // TESTING
-		cout << "wasJustOver: " << wasJustOver << endl;  // TESTING
-		Board child;  // have to initialize it first to avoid errors in my TESTING lines. This could be removed after TESTING is finished. 
+		//cout << "wasJustOver: " << wasJustOver << endl;  // TESTING
 		int nextMove;
 		if (wasJustOver) {
 			nextMove = getNextMove(parent, parentMove);
-			cout << "nextMove for makeChild (wasJustOver): " << nextMove << endl;
+			//cout << "nextMove for makeChild (wasJustOver): " << nextMove << endl;  // TESTING
 			child = makeChild(parent, nextMove, XOswitch * -1);
 		}
 		// If it's the second time through this for loop, child board should be just looking for the first available move, instead 
 		// of the next available move AFTER parentMove.
+		else if (i != getFreeSpaces(parent)) {
+			nextMove = getNextMove(parent, parentMove);
+			child = makeChild(parent, nextMove, XOswitch * -1);
+		}
 		else { 
-			cout << "---NEXTMOVE STARTING FROM 0---" << endl; // TESTING
-			nextMove = getNextMove(parent, -1);
+			//cout << "--FIRST CYCLE OF LOOP--" << endl;
+			//cout << "---NEXTMOVE STARTING FROM 0---" << endl; // TESTING
+			nextMove = getNextMove(parent, -1);  // searches for the next available spot, starting from 0
 			child = makeChild(parent, nextMove, XOswitch * -1);
 		}
 		{
+			//cout << "Code: " << code << endl; // TESTING
+			//cout << "i value: " << i << endl; // TESTING
 			cout << "parent board: " << endl; // TESTING
 			displayBoard(parent); // TESTING
 			cout << "child board: " << endl; // TESTING
@@ -74,26 +76,29 @@ Board getBestMove(Board parent, int parentMove, int XOswitch) {  // XOswitch: 1 
 			cout << endl; // TESTING
 		}
 		if (child.isOver()) {  // Base case (calling this also assigns a score to child)
-			cout << "child.isOver()" << endl;  // TESTING
-			parent = updateScore(parent, child, parentMove, XOswitch); // updates parent score and bestMove based on child.score and XOswitch.
+			//cout << "child.isOver()" << endl;  // TESTING
+			//cout << "child.score: " << child.score << endl; // TESTING
+			cout << "parent.score BEFORE: " << parent.score << endl;
+			parent = updateScore(parent, child, nextMove, XOswitch); // updates parent score and bestMove based on child.score and XOswitch.
+			cout << "parent.score AFTER: " << parent.score << endl;
 			wasJustOver = true;
 			parentMove = nextMove;
 		}
 		else {
-			parentMove = getNextMove(parent, parentMove);  // finds the next available move after the current parentMove.
+			parentMove = nextMove;
 			wasJustOver = false;
 			if (parentMove < 8) {
 				child = getBestMove(child, parentMove, XOswitch * -1);
-				// parentMove++;
-				// XOswitch *= -1;
 			}
 			else {
 				child = getBestMove(child, getNextMove(parent, 0), XOswitch * -1);
 			}
 		}
+		parent = updateScore(parent, child, nextMove, XOswitch);
+		cout << "bestMove (inside for) is: " << parent.bestMove << endl; // TESTING
 	}
-	cout << "end of getBestMove cycle." << endl; // TESTING
-	cout << "bestMove is: " << parent.bestMove << endl;
+	//cout << "bestMove is: " << parent.bestMove << endl; // TESTING
+	cout << "bestMove is: " << parent.bestMove << endl; // TESTING
 	return parent;
 }
 	
@@ -155,15 +160,19 @@ int getFreeSpaces(Board child) {  // returns how many freeSpaces are available i
 }
 
 Board updateScore(Board parent, Board child, int prevMove, int XOswitch) {  // returns the same parent board, but with a possible new score based off of the most recent child.score visited. 
-	if ((XOswitch == 1) && (child.score > parent.score)) {  // if it's comp's move
+	//if (XOswitch == 1) cout << "--Comps Turn--" << endl;
+	//else cout << "--Human Turn--" << endl;
+	cout << "______________parent.score: " << parent.score << endl; // TESTING
+	cout << "______________child.score: " << child.score << endl; // TESTING
+	if ((XOswitch == -1) && (child.score > parent.score)) {  // if it's comp's move
 		parent.score = child.score;
 		parent.bestMove = prevMove;  // records the move that changed the parent score
-		cout << "new parent.bestMove: " << parent.bestMove << endl;  // TESTING
+		//cout << "new parent.bestMove: " << parent.bestMove << endl;  // TESTING
 	}
-	if ((XOswitch == -1) && (child.score < parent.score)) {  // if it's human's move
+	if ((XOswitch == 1) && (child.score < parent.score)) {  // if it's human's move
 		parent.score = child.score;
 		parent.bestMove = prevMove;  // records the move that changed the parent score
-		cout << "new parent.bestMove: " << parent.bestMove << endl;  // TESTING
+		//cout << "new parent.bestMove: " << parent.bestMove << endl;  // TESTING
 	}
 	return parent;
 }
