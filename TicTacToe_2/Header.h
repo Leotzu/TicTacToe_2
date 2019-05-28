@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Board.h"
-#include "Move.h"
 #include <iostream>
-#include <cstdlib> 
+#include <cstdlib> // helps generate random numbers
+#include <ctime> // helps generate NEW random numbers
 using namespace std;
 
 int X = 1;

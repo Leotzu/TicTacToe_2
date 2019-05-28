@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <sstream>
 #include <iostream>
 using namespace std;
 
@@ -11,9 +10,7 @@ public:
 	int bestMove;
 	int freeSpaces;
 	int state[9];
-	string toString();
 	bool isOver();
-	// Board * prev;
 	Board();
 	~Board();
 };

@@ -10,23 +10,20 @@ Board::Board() {  // creates a new board with no plays on it.
 		state[i] = 0;
 	}
 	freeSpaces = 9;
+	bestMove = -1; // TESTING defaults bestMove to -1 to avoid errors and spot errors.
 	score = 0;
 }
 
 bool Board::isOver() {
-	if (freeSpaces == 0) {
-		score = 0;
-		return 0;  // draw check.
-	}
 	for (int i = 0; i < 7; i += 3) {
-		if (state[i] == state[i + 1] && state[i] == state[i + 2] && state[i] != 0) {  // horizontal check.
+		if (state[i] == state[i + 1] && state[i] == state[i + 2] && state[i] != 0) {  // horizontal checks.
 			if (state[i] == 1) score = 10;  // comp wins
 			else score = -10;  // human wins
 			return true;
 		}
 	}
 	for (int i = 0; i < 3; i++) {
-		if (state[i] == state[i + 3] && state[i] == state[i + 6] && state[i] != 0) {  // vertical check.
+		if (state[i] == state[i + 3] && state[i] == state[i + 6] && state[i] != 0) {  // vertical checks.
 			if (state[i] == 1) score = 10;  // comp wins
 			else score = -10;  // human wins
 			return true;
@@ -42,19 +39,11 @@ bool Board::isOver() {
 		else score = -10;  // human wins
 		return true;
 	}
-	return false;
-}
-
-string Board::toString() {  // returns the board state as a string. 
-	string str = "Board State:\n ";
-	
-	for (int i = 0; i < 9; i++) {
-		str += to_string(state[i]);
-		if ((i == 2) || (i == 5)) str += "\n";
-		str += " ";
+	if (freeSpaces == 0) { // draw check.
+		score = 0;
+		return true;
 	}
-	str += "\n";
-	return str;
+	return false;
 }
 
 Board::~Board()

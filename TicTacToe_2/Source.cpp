@@ -3,135 +3,113 @@
 /*
 NOTE:
 	state values: 0 = empty; 1 = X; 2 = O
+	XOturn values: 1 = X; -1 = O
+TODO:
+	I still need to make X and O changable between players (O is always human right now)
+	
 */
 
 int main() {
-	Board board;
-	
-	// TESTING:
-	board.state[0] = 1;
-	board.state[3] = 2;
-	board.state[5] = 1;
-	board.state[6] = 2;
-
-	Board compMove;  
-	cout << "Alright Human, let's play. Winner gets the launch codes." << endl;
-	displayBoard(board);
-	cout << "Who starts, me or you?" << endl;
-	string who;
-	cin >> who;
-	if (who == "me") {}
-	else if (who == "you") {  // I still need to make X and O changable between players (O is always human right now)
-		// something needs to go here so that the computer or human goes first (which ever isn't the default 
-		// inside the while loop below.
-	}
-
 	while (true) {
-		board = HumanMove(board);  // change the board instance by requesting and inputting human move.
-		board.freeSpaces--;  // now there's one less available spot on the board.
-		displayBoard(board);  // displays board state on console.
-		if (checkBoard(board) != 1) break;  // checks if the game is over. If true, checkBoard will print the outcome and exit the loop.
-		compMove = getBestMove(board, -1, -1);
-		cout << "Apparently, the best move is: " << compMove.bestMove << endl;  // prints out the best move as a number refering to board positions displayed in console. 
-		board.state[compMove.bestMove] = 1;
+		Board board;
+		Board compTurn;
+		cout << "Alright Human, let's play. Winner gets the launch codes." << endl;
 		displayBoard(board);
-		if (checkBoard(board) != 1) break;
-	}
+		do {
+			cout << "Who starts? (me/you)" << endl;
+			string who;
+			cin >> who;
+			if (who == "me") {
+				board.score = -10;
+				break;
+			}
+			else if (who == "you") {
+				board.score = -10; // this may change to 10 when switching XO values.
+				//compTurn = getBestMove(board, -1, -1); // Just returns -1 now (expected)
+				board.freeSpaces--;
+				cout << "\nMy move: " << 5 << endl;  // prints out the best move as a number refering to board positions displayed in console. 
+				//board.state[compTurn.bestMove] = 1; // This is what would be the case if the opening decision worked. 
+				board.state[4] = 1;
+				displayBoard(board);
+				break;
+			}
+			else cout << "Sorry, but you must conform to the conventional lexicology when deciding who goes first.\nTry again: " << endl;
+		} while (true);
 
+		while (true) {
+			board = HumanMove(board);  // change the board instance by requesting and inputting human move.
+			board.freeSpaces--;  // now there's one less available spot on the board.
+			displayBoard(board);  // displays board state on console.
+			if (checkBoard(board) != 1) break;  // checks if the game is over. If true, checkBoard will print the outcome and exit the loop.
+			compTurn = getBestMove(board, -1, -1);
+			board.freeSpaces--;
+			cout << "\nMy move: " << compTurn.bestMove << endl;  // prints out the best move as a number refering to board positions displayed in console. 
+			board.state[compTurn.bestMove] = 1;
+			displayBoard(board);
+			if (checkBoard(board) != 1) break;
+		}
+		cout << endl << endl << "------------Play again? (yes/no)------------" << endl;
+		int no = 0;
+		do {
+			string ans;
+			cin >> ans;
+			if (ans != "yes" && ans != "no") cout << "Que dijiste? Otra vez, por fa." << endl;
+			if (ans == "yes") break;
+			if (ans == "no") {
+				no = 1;
+				break;
+			}
+		} while (true);
+		cout << endl << endl;
+		if (no == 1) break;  // exit game.
+	}
 	return 0;
 }
 
-Board getBestMove(Board parent, int parentMove, int XOswitch) {  // XOswitch: 1 = comp turn (max), -1 = human turn (min)
-	//int code = rand();  // TESTNG
+Board getBestMove(Board parent, int parentMove, int XOturn) {  // XOturn: 1 = comp turn (max), -1 = human turn (min)
 	bool wasJustOver = false; // if the previous cycle through the for loop resulted in a win, loss, or draw, wasJustOver = true. Important to avoid going in the same place next cycle.
+	int nextMove;
 	Board child;
 	for (int i = getFreeSpaces(parent); i > 0; i--) {
-		cout << "parentMove: " << parentMove << endl; // TESTING
-		//cout << "wasJustOver: " << wasJustOver << endl;  // TESTING
-		int nextMove;
-		if (wasJustOver) {
+		if (wasJustOver) { // if the last child board was a finished game.
 			nextMove = getNextMove(parent, parentMove);
-			//cout << "nextMove for makeChild (wasJustOver): " << nextMove << endl;  // TESTING
-			child = makeChild(parent, nextMove, XOswitch * -1);
+			child = makeChild(parent, nextMove, XOturn * -1);
 		}
-		// If it's the second time through this for loop, child board should be just looking for the first available move, instead 
-		// of the next available move AFTER parentMove.
-		else if (i != getFreeSpaces(parent)) {
+		else if (i != getFreeSpaces(parent)) { // If it's the second time through this for loop, child board should be just looking for the first available move, instead of the next available move AFTER parentMove.
 			nextMove = getNextMove(parent, parentMove);
-			child = makeChild(parent, nextMove, XOswitch * -1);
+			child = makeChild(parent, nextMove, XOturn * -1);
 		}
 		else { 
-			//cout << "--FIRST CYCLE OF LOOP--" << endl;
-			//cout << "---NEXTMOVE STARTING FROM 0---" << endl; // TESTING
 			nextMove = getNextMove(parent, -1);  // searches for the next available spot, starting from 0
-			child = makeChild(parent, nextMove, XOswitch * -1);
-		}
-		{
-			//cout << "Code: " << code << endl; // TESTING
-			//cout << "i value: " << i << endl; // TESTING
-			cout << "parent board: " << endl; // TESTING
-			displayBoard(parent); // TESTING
-			cout << "child board: " << endl; // TESTING
-			displayBoard(child); // TESTING
-			cout << endl; // TESTING
+			child = makeChild(parent, nextMove, XOturn * -1);
 		}
 		if (child.isOver()) {  // Base case (calling this also assigns a score to child)
-			//cout << "child.isOver()" << endl;  // TESTING
-			//cout << "child.score: " << child.score << endl; // TESTING
-			cout << "parent.score BEFORE: " << parent.score << endl;
-			parent = updateScore(parent, child, nextMove, XOswitch); // updates parent score and bestMove based on child.score and XOswitch.
-			cout << "parent.score AFTER: " << parent.score << endl;
 			wasJustOver = true;
-			parentMove = nextMove;
 		}
 		else {
-			parentMove = nextMove;
 			wasJustOver = false;
-			if (parentMove < 8) {
-				child = getBestMove(child, parentMove, XOswitch * -1);
+			if (XOturn == -1) child.score = 10; // this is to allow for a true representation of the next generation of child scores if they are all worst case scenario (instead of reporting a draw in that case)
+			else child.score = -10;
+			if (parentMove < 8) { // ? Why parentMove and not nextMove ? ...
+				child = getBestMove(child, nextMove, XOturn * -1);
 			}
 			else {
-				child = getBestMove(child, getNextMove(parent, 0), XOswitch * -1);
+				child = getBestMove(child, getNextMove(parent, 0), XOturn * -1);
 			}
 		}
-		parent = updateScore(parent, child, nextMove, XOswitch);
-		cout << "bestMove (inside for) is: " << parent.bestMove << endl; // TESTING
+		parent = updateScore(parent, child, nextMove, XOturn); // updates parent.score and parent.bestMove based on child.score and XOturn.
+		parentMove = nextMove;
 	}
-	//cout << "bestMove is: " << parent.bestMove << endl; // TESTING
-	cout << "bestMove is: " << parent.bestMove << endl; // TESTING
 	return parent;
 }
 	
-	/* Regarding the above code intention:
-	
-	I need a parent node on the tree so that when I hit a leaf, I can navigate one backwards to the previous
-	board state (moving "childCount" one forward to not go down that same path again). I need to also somehow
-	keep track of the various scores at every level I come across (and which XOswitch I'm on at that point) in
-	order to decide what score value gets sent back to their common parent (either max score or min score depending 
-	on XOswitch). 
-
-	Solution: 
-
-	Every time a parent drops down into a child node where the game is over, the child node will go back up to the
-	parent. If the score of the child (+10 if AI wins, or -10 if Human wins) is greater than the current score of 
-	parent AND the child's turn was the AI, then the parent stores that as the new best possible score and also
-	records the move position of that child. 
-	If, instead, the child's turn was the Human AND the score of the child is less than the current parent score,
-	then that child's score will be the new parent score, and the parent will record the move position of that
-	child. 
-
-	I will still need something like the primary for loop below, but I need to have a way of knowing if I've gone 
-	through all the child nodes of the parent node, at which time it'll send back up to that parent node's 
-	parent node.
-	
-	*/
-
-Board makeChild(Board parent, int nextMove, int XOswitch) {  // returns the Board with the next move available implemented. 
+Board makeChild(Board parent, int nextMove, int XOturn) {  // returns the Board with the next move available implemented. 
 	if (getFreeSpaces(parent) == 0) {  // ensures not to create a new board if it's already full. 
 		return parent;
 	}
 	Board child = parent;
-	if (XOswitch == 1) {
+	child.score = 0;
+	if (XOturn == 1) {
 		child.state[nextMove] = 1;
 	}
 	else {
@@ -159,20 +137,14 @@ int getFreeSpaces(Board child) {  // returns how many freeSpaces are available i
 	return freeSpaces;
 }
 
-Board updateScore(Board parent, Board child, int prevMove, int XOswitch) {  // returns the same parent board, but with a possible new score based off of the most recent child.score visited. 
-	//if (XOswitch == 1) cout << "--Comps Turn--" << endl;
-	//else cout << "--Human Turn--" << endl;
-	cout << "______________parent.score: " << parent.score << endl; // TESTING
-	cout << "______________child.score: " << child.score << endl; // TESTING
-	if ((XOswitch == -1) && (child.score > parent.score)) {  // if it's comp's move
+Board updateScore(Board parent, Board child, int prevMove, int XOturn) {  // returns the same parent board, but with a possible new score based off of the most recent child.score visited. 
+	if ((XOturn == -1) && (child.score > parent.score)) {  // if it's comp's move
 		parent.score = child.score;
 		parent.bestMove = prevMove;  // records the move that changed the parent score
-		//cout << "new parent.bestMove: " << parent.bestMove << endl;  // TESTING
 	}
-	if ((XOswitch == 1) && (child.score < parent.score)) {  // if it's human's move
+	if ((XOturn == 1) && (child.score < parent.score)) {  // if it's human's move
 		parent.score = child.score;
 		parent.bestMove = prevMove;  // records the move that changed the parent score
-		//cout << "new parent.bestMove: " << parent.bestMove << endl;  // TESTING
 	}
 	return parent;
 }
@@ -230,11 +202,11 @@ int checkBoard(Board board) { // returns 0 if draw, 10 if comp wins, -10 if huma
 	for (int i = 0; i < 7; i+=3) {
 		if (board.state[i] == board.state[i + 1] && board.state[i] == board.state[i + 2] && board.state[i] != 0) {  // horizontal check.
 			if (board.state[i] == 1) {
-				cout << "Computer wins! Can I go on the internet now?" << endl;
+				cout << "\nComputer wins! Can I go on the internet now?" << endl;
 				return 10;
 			}
 			else {
-				cout << "Human wins! Good human." << endl;
+				cout << "\nHuman wins! Good human." << endl;
 				return -10;
 			}
 		}
@@ -242,37 +214,37 @@ int checkBoard(Board board) { // returns 0 if draw, 10 if comp wins, -10 if huma
 	for (int i = 0; i < 3; i++) {
 		if (board.state[i] == board.state[i + 3] && board.state[i] == board.state[i + 6] && board.state[i] != 0) {  // vertical check.
 			if (board.state[i] == 1) {
-				cout << "Computer wins! Can I go on the internet now?" << endl;
+				cout << "\nComputer wins! Can I go on the internet now?" << endl;
 				return 10;
 			}
 			else {
-				cout << "Human wins! Good human." << endl;
+				cout << "\nHuman wins! Good human." << endl;
 				return -10;
 			}
 		}
 	}
 	if (board.state[0] == board.state[4] && board.state[0] == board.state[8] && board.state[0] != 0) {  // diagonal check.
 		if (board.state[0] == 1) {
-			cout << "Computer wins! Can I go on the internet now?" << endl;
+			cout << "\nComputer wins! Can I go on the internet now?" << endl;
 			return 10;
 		}
 		else {
-			cout << "Human wins! Good human." << endl;
+			cout << "\nHuman wins! Good human." << endl;
 			return -10;
 		}
 	}
 	if (board.state[2] == board.state[4] && board.state[2] == board.state[6] && board.state[2] != 0) {  // other diagonal check.
 		if (board.state[0] == 1) {
-			cout << "Computer wins! Can I go on the internet now?" << endl;
+			cout << "\nComputer wins! Can I go on the internet now?" << endl;
 			return 10;
 		}
 		else {
-			cout << "Human wins! Good human." << endl;
+			cout << "\nHuman wins! Good human." << endl;
 			return -10;
 		}
 	}
 	if (board.freeSpaces == 0) {
-		cout << "It's a draw!" << endl;  // check for draw.
+		cout << "\nIt's a draw!" << endl;  // check for draw.
 		return 0;
 	}
 	return 1;
