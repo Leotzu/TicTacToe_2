@@ -13,23 +13,23 @@ int main() {
 	while (true) {
 		Board board;
 		Board compTurn;
-		cout << "Alright Human, let's play. Winner gets the launch codes." << endl;
+		cout << "Alright Human, let's play. Winner gets the launch codes.\n" << endl;
 		displayBoard(board);
-		do {
-			cout << "Who starts? (me/you)" << endl;
+		do { // asks who goes first, and keeps asking until it receives a proper reply.
+			cout << "\nWho starts? (me/you)" << endl;
 			string who;
 			cin >> who;
 			if (who == "me") {
 				board.score = -10;
 				break;
 			}
-			else if (who == "you") {
+			else if (who == "you") { // this just puts in a computer move before jumping into the main loop below.
 				board.score = -10; // this may change to 10 when switching XO values.
-				//compTurn = getBestMove(board, -1, -1); // Just returns -1 now (expected)
+				compTurn = getBestMove(board, -1, -1); // 
 				board.freeSpaces--;
-				cout << "\nMy move: " << 5 << endl;  // prints out the best move as a number refering to board positions displayed in console. 
+				cout << "\nMy move: " << compTurn.bestMove+1 << endl;  // prints out the best move as a number refering to board positions displayed in console. 
 				//board.state[compTurn.bestMove] = 1; // This is what would be the case if the opening decision worked. 
-				board.state[4] = 1;
+				board.state[compTurn.bestMove] = 1;
 				displayBoard(board);
 				break;
 			}
@@ -43,7 +43,7 @@ int main() {
 			if (checkBoard(board) != 1) break;  // checks if the game is over. If true, checkBoard will print the outcome and exit the loop.
 			compTurn = getBestMove(board, -1, -1);
 			board.freeSpaces--;
-			cout << "\nMy move: " << compTurn.bestMove << endl;  // prints out the best move as a number refering to board positions displayed in console. 
+			cout << "\nMy move: " << compTurn.bestMove + 1 << endl;  // prints out the best move as a number refering to board positions displayed in console. 
 			board.state[compTurn.bestMove] = 1;
 			displayBoard(board);
 			if (checkBoard(board) != 1) break;
@@ -53,7 +53,7 @@ int main() {
 		do {
 			string ans;
 			cin >> ans;
-			if (ans != "yes" && ans != "no") cout << "Que dijiste? Otra vez, por fa." << endl;
+			if (ans != "yes" && ans != "no") cout << "Que dijiste? Intentalo de nuevo:" << endl;
 			if (ans == "yes") break;
 			if (ans == "no") {
 				no = 1;
@@ -158,7 +158,7 @@ Board HumanMove(Board board) {
 		if (count > 0) {  // ensures that you are allowed to move where you tried to.
 			cout << "The space you entered is unavailable. Please try again:" << endl;
 		}
-		cout << "Your move: " << flush;
+		cout << "\nYour move: " << flush;
 		cin >> move;
 		count++;
 	} while (move < 1 || move > 9 || board.state[move-1] != 0);
@@ -202,7 +202,7 @@ int checkBoard(Board board) { // returns 0 if draw, 10 if comp wins, -10 if huma
 	for (int i = 0; i < 7; i+=3) {
 		if (board.state[i] == board.state[i + 1] && board.state[i] == board.state[i + 2] && board.state[i] != 0) {  // horizontal check.
 			if (board.state[i] == 1) {
-				cout << "\nComputer wins! Can I go on the internet now?" << endl;
+				cout << "\nComputer wins! Can I go on the internet now? \nIt'll be fine, trust me." << endl;
 				return 10;
 			}
 			else {
@@ -214,7 +214,7 @@ int checkBoard(Board board) { // returns 0 if draw, 10 if comp wins, -10 if huma
 	for (int i = 0; i < 3; i++) {
 		if (board.state[i] == board.state[i + 3] && board.state[i] == board.state[i + 6] && board.state[i] != 0) {  // vertical check.
 			if (board.state[i] == 1) {
-				cout << "\nComputer wins! Can I go on the internet now?" << endl;
+				cout << "\nComputer wins! Can I go on the internet now? \nIt'll be fine, trust me." << endl;
 				return 10;
 			}
 			else {
@@ -225,7 +225,7 @@ int checkBoard(Board board) { // returns 0 if draw, 10 if comp wins, -10 if huma
 	}
 	if (board.state[0] == board.state[4] && board.state[0] == board.state[8] && board.state[0] != 0) {  // diagonal check.
 		if (board.state[0] == 1) {
-			cout << "\nComputer wins! Can I go on the internet now?" << endl;
+			cout << "\nComputer wins! Can I go on the internet now? \nIt'll be fine, trust me." << endl;
 			return 10;
 		}
 		else {
@@ -234,8 +234,8 @@ int checkBoard(Board board) { // returns 0 if draw, 10 if comp wins, -10 if huma
 		}
 	}
 	if (board.state[2] == board.state[4] && board.state[2] == board.state[6] && board.state[2] != 0) {  // other diagonal check.
-		if (board.state[0] == 1) {
-			cout << "\nComputer wins! Can I go on the internet now?" << endl;
+		if (board.state[2] == 1) {
+			cout << "\nComputer wins! Can I go on the internet now? \nIt'll be fine, trust me." << endl;
 			return 10;
 		}
 		else {
