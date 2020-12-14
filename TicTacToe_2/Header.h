@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Board.h"
+#include "Board.cpp"
 #include <iostream>
 #include <cstdlib> // helps generate random numbers
 #include <ctime> // helps generate NEW random numbers

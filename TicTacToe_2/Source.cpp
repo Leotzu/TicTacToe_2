@@ -125,6 +125,7 @@ int getNextMove(Board parent, int prevMove) {  // returns the next available spa
 			return i;
 		}
 	}
+	return -1; // added in 2020 when running from terminal, but wasn't needed before for some reason.
 }
 
 int getFreeSpaces(Board child) {  // returns how many freeSpaces are available in the given Board. 
